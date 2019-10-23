@@ -1,0 +1,18 @@
+#!/usr/bin/env bash
+
+WDM_NODE=$(ls /dev/cdc-wdm*)
+
+query=$(ip addr | grep 'ww' )
+squery=($query) #split into array elements 
+if [ -n ${squery[1]} ]; then
+  squery[1]=$(echo ${squery[1]} | sed s/://g)
+  WWAN="${squery[1]}"
+fi
+
+query=$(ip addr | grep "2:")
+squery=($query)
+LAN=$(echo ${squery[1]} | sed s/://g)
+
+query=$(ip addr | grep "3:")
+squery=($query)
+WLAN=$(echo ${squery[1]} | sed s/://g)

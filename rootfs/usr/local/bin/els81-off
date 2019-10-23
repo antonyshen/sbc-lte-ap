@@ -1,0 +1,13 @@
+#!/bin/sh
+echo "ELS81 turn-off utility"
+echo "written by Antony Shen <antony.shen@gemalto.com>"
+ELS81_COM="/dev/ttyACM2"
+if [ -e $ELS81_COM ]; then
+  echo "Power-off ELS81..."
+  atc AT^SMSO
+  #echo -e "AT^SMSO\n" > /dev/ttyACM2
+  sleep 1
+  echo "done!"
+else
+  echo "Noop!"
+fi

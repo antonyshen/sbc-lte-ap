@@ -1,0 +1,12 @@
+#!/bin/sh
+PART_PATH=$1
+
+if [ -n "$PART_PATH" -a -b "$PART_PATH" ]; then
+	sudo umount $PART_PATH
+	sudo tune2fs -o journal_data_writeback $PART_PATH
+	sudo tune2fs -O ^has_journal $PART_PATH
+	sudo e2fsck -f $PART_PATH
+else
+    echo "Usage: $0 <block device node to set to no journal ext4>"
+fi
+

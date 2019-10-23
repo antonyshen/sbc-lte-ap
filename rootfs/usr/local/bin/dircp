@@ -1,0 +1,84 @@
+#!/bin/sh
+usage() {
+    echo "Usage: $0 <SRC DIR to copy> <DST DIR to copy to>"
+    exit 1
+}
+
+show_requirement() {
+	echo "$0: need 'pv', 'tar', and 'rsync' to run, please use"
+	echo "    sudo apt install pv rsync tar"
+        echo "to fix dependency issue."
+
+	exit 2
+}
+
+chk_tools() {
+	PV=`which pv`
+	TAR=`which tar`
+	RSYNC=`which rsync`
+
+	if [ -z "$PV" -o -z "$TAR" -o -z "$RSYNC" ]; then
+		show_requirement
+	fi
+}
+
+chk_params() {
+	SRC_DIR=$(echo $1| tr -s /); SRC_DIR=${SRC_DIR%/}; SRC_DIR=$(readlink -f "$SRC_DIR")
+	if [ -n "$2" ]; then
+		DST_DIR=$(echo $2| tr -s /); DST_DIR=${DST_DIR%/}; DST_DIR=$(readlink -f "$DST_DIR")
+	fi
+
+	if [ -z "$SRC_DIR" -o -z "$DST_DIR" ]; then
+		usage
+	fi
+
+	if [ -n "$SRC_DIR" -a -d "$SRC_DIR" ]; then
+		if [ -n "$DST_DIR" -a -d "$DST_DIR" ]; then
+			PARENT=$(dirname "$SRC_DIR")
+			SOURCE=$(basename "$SRC_DIR")
+			DESTINATION=$(basename "$DST_DIR")
+			if [ "$SOURCE" = "$DESTINATION" ]; then
+				DST_PATH="$DST_DIR"
+			else
+				DST_PATH="$DST_DIR/$SOURCE"
+			fi
+		fi
+	else
+		usage
+	fi
+}
+
+initialize() {
+	chk_tools
+	chk_params "$1" "$2"
+}
+
+bulk_copy() {
+	echo "PARENT=$1"
+	echo "SRC=$2"
+	echo "DST=$3"
+
+	cd "$1"
+	$TAR cf - "$2" | $PV | (cd "$3"; $TAR xf -)
+	cd -
+}
+
+dir_sync() {
+	echo "PARENT=$1"
+	echo "SRC=$2"
+	echo "DST=$3"
+
+	cd "$1"
+	$RSYNC -avxP "$2" "$3"
+	cd -
+}
+
+initialize "$1" "$2"
+
+if [ "$SOURCE" = "$DESTINATION" -o -d "$DST_PATH" ]; then
+	echo "DIR SYNC"
+	dir_sync "$PARENT" "$SOURCE/" "$DST_PATH"
+else
+	echo "BULK COPY"
+	bulk_copy "$PARENT" "$SOURCE" "$DST_DIR"
+fi

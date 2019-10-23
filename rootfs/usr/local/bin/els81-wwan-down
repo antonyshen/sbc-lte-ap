@@ -1,0 +1,24 @@
+#! /usr/bin/env bash
+echo "ELS81 MBIM shutdown utility"
+echo "created by Antony Shen <antony.shen@gemalto.com>"
+echo
+
+WDM_DEV_COUNT=$(ls /dev/cdc-wdm* 2>/dev/null | grep 'cdc-wdm' | wc -l)
+
+if [ $WDM_DEV_COUNT -eq 0 ]; then
+  echo "noop!"
+  exit 1
+fi
+
+. find-wdm
+
+echo "WDM_NODE=$WDM_NODE"
+echo "WWAN=$WWAN"
+sudo ip link set $WWAN down
+sudo ip add flush dev $WWAN
+sudo resolvconf -d $WWAN.lte 2>/dev/null
+
+sudo mbim-network $WDM_NODE stop 2>&1 >/dev/null
+
+sudo els81-off 2>&1 >/dev/null
+echo "done!"

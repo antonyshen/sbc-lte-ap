@@ -1,0 +1,8 @@
+[Unit]
+Description=Shutdown Button Service
+
+[Service]
+ExecStart=/usr/bin/env python3 /usr/local/bin/shutdown.py
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,21 @@
+#!/bin/sh
+TAR_FILE=$1
+if [ -n "$2" ]; then
+    DIR_PATH="$2"
+else
+	DIR_PATH=`pwd`
+fi
+
+CUR_PATH=`pwd`
+
+echo "TAR_FILE=$TAR_FILE"
+echo "DIR_PATH=$DIR_PATH"
+echo "CUR_PATH=$CUR_PATH"
+
+if [ -n "$TAR_FILE" -a -f "$TAR_FILE" ]; then
+    cd "$DIR_PATH"
+    7za x -so "$TAR_FILE" | tar xvf -
+    cd "$CUR_PATH"
+else
+    echo "Usage: $0 <File backuped in .tar.7z> <extract-to-dir>"
+fi

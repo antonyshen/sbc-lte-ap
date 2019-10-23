@@ -1,0 +1,53 @@
+country_code=TW
+
+#This is the name of the WiFi interface we configured above
+interface=wlan0
+bridge=br0
+
+# Use the nl80211 driver with the brcmfmac driver
+driver=nl80211
+
+# This is the name of the network
+ssid=warsteed
+
+# The network passphrase
+wpa_passphrase=0000000000
+
+# Require clients to know the network name
+ignore_broadcast_ssid=0
+
+wpa=2
+wpa_key_mgmt=WPA-PSK
+rsn_pairwise=CCMP
+
+# Use WPA authentication
+auth_algs=1
+
+macaddr_acl=0
+
+logger_syslog=0
+logger_syslog_level=4
+logger_stdout=-1
+logger_stdout_level=0
+
+hw_mode=a
+wmm_enabled=1
+
+# N
+ieee80211n=1
+require_ht=1
+ht_capab=[MAX-AMSDU-3839][HT40+][SHORT-GI-20][SHORT-GI-40][DSSS_CCK-40]
+
+# AC
+ieee80211ac=1
+require_vht=1
+ieee80211d=0
+ieee80211h=0
+vht_capab=[MAX-AMSDU-3839][SHORT-GI-80]
+vht_oper_chwidth=1
+channel=36
+vht_oper_centr_freq_seg0_idx=42
+
+# controlling enabled
+ctrl_interface=/var/run/hostapd
+ctrl_interface_group=0

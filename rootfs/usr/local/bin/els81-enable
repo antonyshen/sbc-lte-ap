@@ -1,0 +1,6 @@
+#!/bin/sh
+sudo systemctl disable plas9-wwan-manager
+sudo systemctl stop plas9-wwan-manager
+sudo systemctl enable els81-wwan-manager
+sudo systemctl start els81-wwan-manager
+sudo systemctl status els81-wwan-manager

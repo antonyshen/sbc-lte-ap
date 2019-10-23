@@ -1,0 +1,13 @@
+#!/usr/bin/env bash
+echo "Create new administrator"
+echo "created by Antony Shen <antony.shen@gemalto.com>"
+echo
+
+ADM=$1
+if [ -n "$ADM" ]; then
+    sudo useradd $ADM -s /bin/bash -m -G adm,sudo,dialout,dip,gpio,i2c,spi,cdrom,audio,plugdev
+    sudo passwd $ADM
+else
+    echo "Usage: $0 <new adm username>"
+fi
+

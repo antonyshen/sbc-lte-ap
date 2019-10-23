@@ -1,0 +1,79 @@
+#! /usr/bin/env bash
+#echo "PLAS9 MBIM bring-Up utility"
+#echo "created by Antony Shen <antony.shen@gemalto.com>"
+#echo
+
+TTY_MODEM="/dev/ttyACM1"
+
+WDM_DEV_COUNT=$(ls /dev/ttyACM* 2>/dev/null  | wc -l)
+if [ $WDM_DEV_COUNT -eq 0 ]; then
+  echo -n "Turn-on PLAS9..."
+  sudo plas9-on 2>&1 >/dev/null
+  while [ $WDM_DEV_COUNT -eq 0 ]; do
+    sleep 3
+    WDM_DEV_COUNT=$(ls /dev/ttyACM* 2>/dev/null  | wc -l)
+  done
+  echo " done!"
+fi
+
+WDM_DEV_COUNT=$(ls /dev/ttyACM* 2>/dev/null  | wc -l)
+if [ $WDM_DEV_COUNT -gt 0 ]; then
+  query=$(dmesg | grep "register 'cdc_ether'" | tail -n 2)
+  squery=($query) #split into array elements 
+  if [ -n ${squery[4]} ]; then
+    squery[4]=$(echo ${squery[4]} | sed s/://g)
+    WWAN="${squery[4]}"
+  fi
+fi
+
+#echo "WWAN=$WWAN"
+
+WWAN_DOWN=$(ip addr | grep "$WWAN" | grep "state DOWN" | wc -l)
+#echo "WWAN_DOWN=$WWAN_DOWN"
+if [ $WWAN_DOWN -gt 0 ]; then
+#  echo -n "Bring up $WWAN..."
+  sleep 15
+  MODEM_RESPONSE=$(modem-cmd $TTY_MODEM AT)
+  while [[ -z "$MODEM_RESPONSE" ]]; do
+    sleep 2
+    MODEM_RESPONSE=$(modem-cmd $TTY_MODEM AT)
+  done
+
+  MODEM_RESPONSE=$(modem-cmd $TTY_MODEM AT+CFUN? | grep " 1")
+  while [[ -z "$MODEM_RESPONSE" ]]; do
+    MODEM_RESPONSE=$(modem-cmd $TTY_MODEM AT+CFUN=1)
+    sleep 2
+  done
+  
+  MODEM_RESPONSE=$(modem-cmd $TTY_MODEM AT+COPS? | grep "ERROR")
+  while [[ -n "$MODEM_RESPONSE" ]]; do
+    sleep 2
+    MODEM_RESPONSE=$(modem-cmd $TTY_MODEM AT+COPS? | grep "ERROR")
+  done
+
+  MODEM_RESPONSE=$(modem-cmd $TTY_MODEM AT+COPS? | grep "+COPS: 0")
+  if [ -z "$MODEM_RESPONSE" ]; then
+    MODEM_RESPONSE=$(modem-cmd $TTY_MODEM AT+COPS=0)
+    sleep 2
+  fi
+
+  MODEM_RESPONSE=$(modem-cmd $TTY_MODEM AT+COPS? | grep ",0,")
+  while [[ -z "$MODEM_RESPONSE" ]]; do
+    sleep 2
+    MODEM_RESPONSE=$(modem-cmd $TTY_MODEM AT+COPS? | grep ",0,")
+  done
+
+  modem-cmd $TTY_MODEM AT+CSQ
+  
+  MODEM_RESPONSE=$(modem-cmd $TTY_MODEM AT+CGDCONT? | grep "ERROR")
+  while [[ -n "$MODEM_RESPONSE" ]]; do
+    sleep 2
+    MODEM_RESPONSE=$(modem-cmd $TTY_MODEM AT+CGDCONT? | grep "ERROR")
+  done
+
+#  modem-cmd $TTY_MODEM AT+CGDCONT?
+  modem-cmd $TTY_MODEM AT^SWWAN=1,1
+  sleep 5
+#  echo "done!"
+fi
+echo "$WWAN is up!"

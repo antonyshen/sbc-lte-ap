@@ -1,0 +1,60 @@
+#!/usr/bin/env bash
+echo "ELS81 Wi-Fi AP Network Interface Setup"
+echo "created by Antony Shen <antony.shen@gemalto.com>"
+echo
+
+FILE=/etc/network/interfaces
+CAT=/bin/cat
+
+. ensure-els81-on
+. find-wdm
+
+#echo "WDM_NODE=$WDM_NODE"
+#echo "WWAN=$WWAN"
+#echo "LAN=$LAN"
+#echo "WLAN=$WLAN"
+
+sudo cp /etc/network/interfaces /etc/network/interfaces.orig
+$CAT <<EOM >$FILE
+# interfaces(5) file used by ifup(8) and ifdown(8)
+
+# Please note that this file is written to be used with dhcpcd
+# For static IP, consult /etc/dhcpcd.conf and 'man dhcpcd.conf'
+
+# Include files from /etc/network/interfaces.d:
+source-directory /etc/network/interfaces.d
+
+auto lo
+iface lo inet loopback
+
+# automatically connect the wired interface
+auto $LAN
+allow-hotplug $LAN
+iface $LAN inet manual
+
+# automatically connect the wireless interface, but disable it for now
+auto $WLAN
+allow-hotplug $WLAN
+iface $WLAN inet manual
+wireless-power off
+
+# create a bridge with both wired and wireless interfaces
+auto br0
+iface br0 inet static
+        address 192.168.52.1
+        netmask 255.255.255.0
+        bridge_ports $LAN $WLAN
+        bridge_fd 0
+        bridge_stp off
+
+auto $WWAN
+allow-hotplug $WWAN
+iface $WWAN inet manual
+  up /sbin/iptables-restore < /etc/iptables.ipv4.br0.$WWAN.nat
+  down /usr/local/bin/els81-wwan-down
+#  post-down /usr/sbin/service hostapd stop
+
+allow-hotplug wlan1
+iface wlan1 inet manual
+    wpa-conf /etc/wpa_supplicant/wpa_supplicant.conf
+EOM

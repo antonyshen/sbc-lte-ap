@@ -1,0 +1,16 @@
+#!/usr/bin/env bash
+
+WDM_DEV_COUNT=$(ls /dev/cdc-wdm* 2>/dev/null | grep 'cdc-wdm' | wc -l)
+
+if [ $WDM_DEV_COUNT -eq 0 ]; then
+  echo -n "Turn-on ELS81..."
+  sudo els81-on 2>&1 >/dev/null
+  while [ $WDM_DEV_COUNT -eq 0 ]; do
+    sleep 1
+    WDM_DEV_COUNT=$(ls /dev/cdc-wdm* 2>/dev/null | grep 'cdc-wdm' | wc -l)
+  done
+  echo " done!"
+else
+  echo "ELS81 already turned-on!"
+fi
+

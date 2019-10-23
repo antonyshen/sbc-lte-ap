@@ -1,0 +1,87 @@
+#! /usr/bin/env bash
+echo "ELS81 WWAN Manager"
+echo "created by Antony Shen <antony.shen@gemalto.com>"
+echo
+
+PING_COUNT=1
+SLEEP_INTERVAL=120
+
+PING="/bin/ping"
+ELS81_OFF="/usr/local/bin/els81-off"
+ELS81_WWAN_UP="/usr/local/bin/els81-wwan-up"
+
+WDM_DEV_COUNT=$(ls /dev/cdc-wdm* 2>/dev/null | grep 'cdc-wdm' | wc -l)
+if [ $WDM_DEV_COUNT -eq 0 ]; then # assume we just boot-up
+  echo "[mon-wwan] wait WWAN boot-up..."
+  while [ $WDM_DEV_COUNT -eq 0 ]; do
+    $ELS81_WWAN_UP
+    WDM_DEV_COUNT=$(ls /dev/cdc-wdm* 2>/dev/null | grep 'cdc-wdm' | wc -l)
+  done
+  echo "[mon-wwan] wwan port is up!"
+fi
+
+. find-wdm
+#echo "WDM_NODE=$WDM_NODE"
+#echo "WWAN=$WWAN"
+
+# assume just boot-up, setup WWAN IP service
+ELS81_UP=`ip addr | grep -A 3 $WWAN | grep "inet "`
+#echo $ELS81_UP
+if [ -z "$ELS81_UP" ]; then
+  echo "[mon-wwan] bring-Up $WWAN..."
+  $ELS81_WWAN_UP
+#  sleep 10
+fi
+
+
+#query=$(sudo mbimcli -d $WDM_NODE -p --query-ip-configuration )
+#squery=($query) #split into array elements 
+#D1V4=$(echo ${squery[14]} | sed s/\'//g)
+#D2V4=$(echo ${squery[17]} | sed s/\'//g)
+GD1V4="8.8.8.8"
+GD2V4="8.8.4.4"
+FD1V4="1.1.1.1"
+FD2V4="1.0.0.1"
+CD1V4="208.67.222.222"
+CD2V4="208.67.220.220"
+Q9DV4="9.9.9.9"
+KIMO="www.kimo.com"
+GOOGLE="www.google.com"
+AMAZON="www.amazon.com"
+
+PING_TARGETS=($AMAZON $GOOGLE $KIMO $FD1V4 $FD2V4 $GD1V4 $GD2V4 $Q9DV4 $CD1V4 $CD2V4)
+
+MAXCOUNT=10
+# Monitor the status of WWAN pipe, ensure it's free from congestion
+while true; do
+  count=1
+  sleep $SLEEP_INTERVAL
+
+  # Generate 10 ($MAXCOUNT) random pings.
+  while [ $count -le $MAXCOUNT ]; do
+    number=$(( RANDOM % $MAXCOUNT ))
+    #$PING -I $WWAN -W 1 -c $PING_COUNT ${PING_TARGETS[number]}
+    $PING -I $WWAN -W 1 -c $PING_COUNT ${PING_TARGETS[number]} 2>&1 > /dev/null
+    RC=$?
+    if [ $RC -eq 0 ]; then
+#      echo "[mon-wwan] $WWAN is up."
+      break
+    fi
+    ((count++))
+#    let "count += 1"  # Increment count.
+  done
+
+  if [ $RC -ge 1 ]
+  then
+    echo "[mon-wwan] $WWAN seems to be down, reboot module!"
+    atc AT+CEER
+    atc AT^SMONI
+    atc AT^CGPADDR
+    atc AT+CGCONTRDP
+    sudo $ELS81_OFF
+    sleep 5
+    sudo $ELS81_WWAN_UP
+  #else
+  #  echo "[mon-wwan] $WWAN is up."
+  fi
+done

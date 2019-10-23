@@ -1,0 +1,5 @@
+#!/bin/sh
+sudo els81-off
+sudo sync; sudo sync; sudo sync
+sudo shutdown -h now
+

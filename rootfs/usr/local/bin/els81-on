@@ -1,0 +1,76 @@
+#!/usr/bin/env bash
+echo "ELS81 turn-on utility"
+echo "written by Antony Shen <antony.shen@gemalto.com>"
+
+# Common path for all GPIO access
+BASE_GPIO_PATH=/sys/class/gpio
+
+# Assign names to GPIO pin numbers for ON pin
+IGT=25
+
+# Assign names to states
+ON="1"
+OFF="0"
+
+# Utility function to request (export) a pin if not already exported
+exportPin()
+{
+  if [ ! -e $BASE_GPIO_PATH/gpio$1 ]; then
+    echo "$1" > $BASE_GPIO_PATH/export
+  fi
+}
+
+unexportPin()
+{
+  echo "$1" > $BASE_GPIO_PATH/unexport
+}
+
+# Utility function to set a pin as an output
+setOutput()
+{
+  echo "out" > $BASE_GPIO_PATH/gpio$1/direction
+}
+
+# Utility function to change state of a pin
+setGPIOState()
+{
+  echo $2 > $BASE_GPIO_PATH/gpio$1/value
+}
+
+# Utility function to turn all lights off
+cleanUp()
+{
+  setGPIOState $IGT $OFF
+  unexportPin $IGT
+}
+
+# Ctrl-C handler for clean shutdown
+shutdown()
+{
+  cleanUp
+  exit 0
+}
+
+trap shutdown SIGINT
+
+if [[ $EUID -ne 0 ]]; then
+  echo "You must be a root user" 2>&1
+  exit 1
+fi
+
+echo -n "Turn-on ELS81..."
+
+# Export pins so that we can use them
+exportPin $IGT
+
+# Set pins as outputs
+setOutput $IGT
+
+# Toggle ON pin
+setGPIOState $IGT $ON
+sleep 1
+setGPIOState $IGT $OFF
+
+echo "done!"
+
+cleanUp

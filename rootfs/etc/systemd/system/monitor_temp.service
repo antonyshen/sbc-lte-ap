@@ -1,0 +1,8 @@
+[Unit]
+Description=Monitor CPU Temperature Service
+
+[Service]
+ExecStart=/usr/bin/env python /usr/local/bin/monitor_temp.py
+
+[Install]
+WantedBy=multi-user.target

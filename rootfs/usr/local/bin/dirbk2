@@ -1,0 +1,14 @@
+#!/bin/sh
+DIR_PATH=$1
+if [ -n "$2" ]; then
+    TAR_FILE="$2"
+else
+	TAR_FILE=`basename "$1"`.tar.zst
+fi
+
+if [ -n "$DIR_PATH" -a -d "$DIR_PATH" ]; then
+  tar -I 'zstd --ultra --long' "$TAR_FILE $DIR_PATH"
+else
+    echo "Usage: $0 <DIR to backup in .tar.zst> <saved filename>"
+fi
+

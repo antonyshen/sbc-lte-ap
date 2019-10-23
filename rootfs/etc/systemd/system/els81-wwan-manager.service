@@ -1,0 +1,8 @@
+[Unit]
+Description=ELS81 Init Service
+
+[Service]
+ExecStart=/usr/local/bin/els81-wwan-manager
+
+[Install]
+WantedBy=multi-user.target

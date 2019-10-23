@@ -1,0 +1,4 @@
+sudo userdel pi
+sudo rm -rf /home/pi
+sudo cp /etc/ssh/sshd_config /etc/ssh/sshd_config.orig
+sudo cp /etc/ssh/sshd_config.new /etc/ssh/sshd_config

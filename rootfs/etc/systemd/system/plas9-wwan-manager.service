@@ -1,0 +1,8 @@
+[Unit]
+Description=PLAS9 Init Service
+
+[Service]
+ExecStart=/usr/local/bin/plas9-wwan-manager
+
+[Install]
+WantedBy=multi-user.target

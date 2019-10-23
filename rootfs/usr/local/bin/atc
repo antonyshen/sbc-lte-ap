@@ -1,0 +1,5 @@
+#!/bin/sh
+TTY_CMD="/dev/ttyACM1"
+
+modem-cmd $TTY_CMD $1
+

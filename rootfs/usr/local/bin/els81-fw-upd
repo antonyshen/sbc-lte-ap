@@ -1,0 +1,67 @@
+#! /usr/bin/env bash
+echo "ELS81 FW update utility"
+echo "created by Antony Shen <antony.shen@gemalto.com>"
+echo
+
+usage() {
+  echo "Usage: $0 <.usf filename> <.jad filename>"
+  exit 1
+}
+
+chk_param() {
+  if [ ! -e "$1" ]; then
+    echo "Cannot find $1!"
+    usage
+  fi
+
+  if [ ! -e "$2" ]; then
+    echo "Cannot find $2!"
+    usage
+  fi
+
+  jarfile=$(basename $(ls *.jad) jad)jar
+  if [ ! -e "$jarfile" ]; then
+    echo "Cannot find $jarfile! Pleas place $jarfile in the same dir of $2."
+    usage
+  fi
+}
+
+wait_modem_ready() {
+  DEV_COUNT=$(ls /dev/ttyACM* 2>/dev/null | wc -l)
+  while [ $DEV_COUNT -eq 0 ]; do
+    sleep 1
+    DEV_COUNT=$(ls /dev/ttyACM* 2>/dev/null | wc -l)
+  done
+}
+
+if [ "$#" -ne 2 ]; then
+  usage
+fi
+
+chk_param "$1" "$2"
+
+. ensure-els81-on
+. find-wdm
+
+sudo systemctl stop els81-wwan-manager.service
+sudo ip link set $WWAN down
+sudo ip add flush dev $WWAN
+sudo resolvconf -d $WWAN.lte 2>/dev/null
+sudo mbim-network $WDM_NODE stop 2>&1 >/dev/null
+
+atc 'AT^SSRVSET="actSrvSet",1'
+atc 'AT+CFUN=1,1'
+sleep 10
+
+wait_modem_ready
+sleep 2
+glinswup_ELS81 -f $1 -j $2 -p /dev/ttyACM0 -v
+sleep 5
+
+atc 'AT^SSRVSET="actSrvSet",4'
+atc 'AT+CFUN=1,1'
+sleep 10
+
+sudo systemctl start els81-wwan-manager.service
+
+echo "done!"

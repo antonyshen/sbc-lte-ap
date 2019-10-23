@@ -1,0 +1,8 @@
+#!/bin/sh
+sudo cp /etc/fstab /etc/fstab.orig
+sudo sed -i "$ a # Speed-up daily operation via tmpfs" /etc/fstab
+sudo sed -i "$ a tmpfs   /tmp    tmpfs   nodev,defaults,noatime,nodiratime       0       0" /etc/fstab
+sudo sed -i "$ a tmpfs   /var/tmp        tmpfs   defaults,noatime,nodiratime,mode=1777   0       0" /etc/fstab
+sudo sed -i "$ a tmpfs   /var/log/apt    tmpfs   defaults,noatime,nodiratime     0       0" /etc/fstab
+sudo sed -i "$ a tmpfs   /var/cache/apt/archives tmpfs   defaults,noatime,nodiratime     0       0" /etc/fstab
+sudo sed -i "$ a tmpfs   /var/lib/update-notifier/package-data-downloads/partial tmpfs   defaults,noatime        0       0" /etc/fstab

@@ -1,0 +1,18 @@
+#!/usr/bin/env bash
+echo "PLAS9 reset utility"
+echo "written by Antony Shen <antony.shen@gemalto.com>"
+
+if [[ $EUID -ne 0 ]]; then
+  echo "You must be a root user" 2>&1
+  exit 1
+fi
+
+TTY_COM="/dev/ttyACM1"
+if [ -e $TTY_COM ]; then
+  echo -n "Reset PLAS9..."
+  atc AT+CFUN=1,1
+  sleep 1
+  echo "done!"
+else
+  echo "Noop!"
+fi

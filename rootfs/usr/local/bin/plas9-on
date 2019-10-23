@@ -1,0 +1,29 @@
+#!/usr/bin/env bash
+echo "PLAS9 turn-on utility"
+echo "written by Antony Shen <antony.shen@gemalto.com>"
+
+if [[ $EUID -ne 0 ]]; then
+  echo "You must be a root user" 2>&1
+  exit 1
+fi
+
+PLAS9_COM="/dev/ttyACM1"
+if [ -e $PLAS9_COM ]; then
+  echo "Noop..."
+  exit 2
+fi
+
+echo -n "Turn-on PLAS9..."
+sudo uhubctl -a on -p 2 2>&1 >/dev/null
+sleep 1
+
+WDM_DEV_COUNT=$(ls /dev/ttyACM* 2>/dev/null  | wc -l)
+while [ $WDM_DEV_COUNT -eq 0 ]; do
+	sleep 1
+	WDM_DEV_COUNT=$(ls /dev/ttyACM* 2>/dev/null  | wc -l)
+done
+
+sleep 1
+
+echo "done!"
+

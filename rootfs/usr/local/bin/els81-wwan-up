@@ -1,0 +1,74 @@
+#! /usr/bin/env bash
+echo "ELS81 MBIM bring-Up utility"
+echo "created by Antony Shen <antony.shen@gemalto.com>"
+echo
+
+. ensure-els81-on
+. find-wdm
+
+#sudo mbimcli -d $WDM_NODE -p --query-registration-state
+query=$(sudo mbimcli -d $WDM_NODE -p --query-registration-state)
+squery=($query) #split into array elements 
+if [ -n ${squery[6]} ]; then
+  squery[6]=$(echo ${squery[6]} | sed s/\'//g)
+  MNO_STATE="${squery[6]}"
+
+  while [[ $MNO_STAT == "unknown" ]]; do
+    echo -n "Registering to network..."
+    sleep 1
+
+    query=$(sudo mbimcli -d $WDM_NODE -p --query-registration-state)
+    squery=($query) #split into array elements 
+    if [ -n ${squery[6]} ]; then
+      squery[6]=$(echo ${squery[6]} | sed s/\'//g)
+      MNO_STATE="${squery[6]}"
+      if [[ $MNO_STAT != "unknown" ]]; then
+        echo " done!"
+      fi
+    fi
+  done
+fi
+
+query=$(sudo mbimcli -d $WDM_NODE -p --query-signal-state)
+squery=($query) #split into array elements 
+if [ -n ${squery[5]} ]; then
+  squery[5]=$(echo ${squery[5]} | sed s/\'//g)
+  RSSI="${squery[5]}"
+
+  while [[ $RSSI -eq 99 ]]; do
+    echo -n "Reading RSSI: "
+    sleep 1
+
+    query=$(sudo mbimcli -d $WDM_NODE -p --query-signal-state)
+    squery=($query) #split into array elements 
+    if [ -n ${squery[5]} ]; then
+      squery[5]=$(echo ${squery[5]} | sed s/\'//g)
+      RSSI="${squery[5]}"
+      if [[ $RSSI -ne 99 ]]; then
+        echo " $RSSI!"
+        sleep 1
+      fi
+    fi
+  done
+fi
+
+echo -n "Requesting IP service... "
+sudo mbim-network $WDM_NODE start 2>&1 >/dev/null
+#sudo mbimcli -d $WDM_NODE -p --query-ip-configuration
+
+query=$(sudo mbimcli -d $WDM_NODE -p --query-ip-configuration
+)
+squery=($query) #split into array elements 
+
+IPV4=$(echo ${squery[9]} | sed s/\'//g) 
+GWV4=$(echo ${squery[11]} | sed s/\'//g) 
+D1V4=$(echo ${squery[14]} | sed s/\'//g)
+D2V4=$(echo ${squery[17]} | sed s/\'//g)
+
+sudo ip addr add $IPV4 dev $WWAN 
+echo -e "nameserver $D1V4\nnameserver $D2V4" | sudo resolvconf -a $WWAN.lte 2>/dev/null
+#sudo systemd-resolve -i $WWAN --set-dns=$D1V4 --set-dns=$D2V4
+sudo ip link set $WWAN up
+sudo ip route add default via $GWV4 metric 50
+#ip addr show dev $WWAN
+echo " done!"

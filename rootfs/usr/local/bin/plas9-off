@@ -1,0 +1,20 @@
+#!/usr/bin/env bash
+echo "PLAS9 turn-off utility"
+echo "written by Antony Shen <antony.shen@gemalto.com>"
+
+if [[ $EUID -ne 0 ]]; then
+  echo "You must be a root user" 2>&1
+  exit 1
+fi
+
+TTY_COM="/dev/ttyACM1"
+if [ -e $TTY_COM ]; then
+  echo -n "Power-off PLAS9..."
+  echo -e "AT^SMSO\n" > /dev/ttyACM1
+  sleep 1
+  sudo uhubctl -a off -p 2 2>&1 >/dev/null
+  sleep 1
+  echo "done!"
+else
+  echo "Noop!"
+fi

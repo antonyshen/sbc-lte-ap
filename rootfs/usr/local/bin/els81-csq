@@ -1,0 +1,7 @@
+#!/bin/sh
+echo "ELS81 signal strength query utility"
+echo "written by Antony Shen <antony.shen@gemalto.com>"
+
+#sudo mbimcli -d /dev/cdc-wdm0 -p --query-signal-state
+atc at^smoni
+#atc at+csq

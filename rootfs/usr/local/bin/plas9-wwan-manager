@@ -1,0 +1,104 @@
+#! /usr/bin/env bash
+echo "PLAS9 WWAN Manager"
+echo "created by Antony Shen <antony.shen@gemalto.com>"
+echo
+
+PING_COUNT=1
+SLEEP_INTERVAL=120
+
+PING="/bin/ping"
+PLAS9_OFF="/usr/local/bin/plas9-reset"
+PLAS9_ON="/usr/local/bin/plas9-on"
+PLAS9_WWAN_UP="/usr/local/bin/plas9-wwan-up"
+
+WDM_DEV_COUNT=$(ls /dev/ttyACM* 2>/dev/null  | wc -l)
+if [ $WDM_DEV_COUNT -eq 0 ]; then # assume we just boot-up
+  echo "[mon-wwan] wait WWAN boot-up..."
+  while [ $WDM_DEV_COUNT -eq 0 ]; do
+    $PLAS9_ON
+    WDM_DEV_COUNT=$(ls /dev/ttyACM* 2>/dev/null  | wc -l)
+  done
+  echo "[mon-wwan] wwan port turned-on!"
+fi
+
+WDM_DEV_COUNT=$(ls /dev/ttyACM* 2>/dev/null  | wc -l)
+if [ $WDM_DEV_COUNT -gt 0 ]; then
+  query=$(dmesg | grep "register 'cdc_ether'" | tail -n 2)
+  squery=($query) #split into array elements 
+  if [ -n ${squery[4]} ]; then
+    squery[4]=$(echo ${squery[4]} | sed s/://g)
+    WWAN="${squery[4]}"
+  fi
+fi
+
+#echo "WWAN=$WWAN"
+
+## assume just boot-up, wait 3mins
+WWAN_DOWN=$(ip addr | grep "$WWAN" | grep "state DOWN" | wc -l)
+if [ $WWAN_DOWN -gt 0 ]; then
+  echo "[mon-wwan] wait WWAN I/F up..."
+  $PLAS9_WWAN_UP
+  while [ $WDM_DEV_COUNT -eq 0 ]; do
+    WDM_DEV_COUNT=$(ls /dev/ttyACM* 2>/dev/null  | wc -l)
+  done
+	sleep 10
+fi
+
+## Query current DNS configuration through MBIM
+## However, due to libmbim/PLAS9 implementation issue, this query might cause 
+## the networking unstable, so disable it for now
+#query=$(sudo mbimcli -d $WDM_NODE -p --query-ip-configuration )
+#squery=($query) #split into array elements 
+#D1V4=$(echo ${squery[14]} | sed s/\'//g)
+#D2V4=$(echo ${squery[17]} | sed s/\'//g)
+GD1V4="8.8.8.8"
+GD2V4="8.8.4.4"
+FD1V4="1.1.1.1"
+FD2V4="1.0.0.1"
+CD1V4="208.67.222.222"
+CD2V4="208.67.220.220"
+Q9DV4="9.9.9.9"
+KIMO="www.kimo.com"
+GOOGLE="www.google.com"
+AMAZON="www.amazon.com"
+
+PING_TARGETS=($AMAZON $GOOGLE $KIMO $FD1V4 $FD2V4 $GD1V4 $GD2V4 $Q9DV4 $CD1V4 $CD2V4)
+MAXCOUNT=10
+
+## Monitor the status of WWAN pipe, ensure it's free from congestion
+while true; do
+  ## ping test to detect if networking status is healthy or not
+  ## if any ping target responded, we'll consider the networking is alive
+  count=1
+  sleep $SLEEP_INTERVAL
+
+  # Generate 10 ($MAXCOUNT) random pings.
+  while [ $count -le $MAXCOUNT ]; do
+    number=$(( RANDOM % $MAXCOUNT ))
+#    echo "number = $number"
+    #$PING -I $WWAN -W 1 -c $PING_COUNT ${PING_TARGETS[number]}
+    $PING -I $WWAN -W 1 -c $PING_COUNT ${PING_TARGETS[number]} 2>&1 > /dev/null
+    RC=$?
+    if [ $RC -eq 0 ]; then
+      #echo "[mon-wwan] $WWAN is up."
+      break
+    fi
+    ((count++))
+#    echo "count = $count"
+#    let "count += 1"  # Increment count.
+  done
+
+  if [ $RC -ge 1 ]
+  then
+    echo "[mon-wwan] $WWAN seems to be down, reboot module!"
+    atc AT+CEER
+    atc AT^SMONI
+    atc AT^CGPADDR
+    atc AT+CGCONTRDP
+    sudo $PLAS9_OFF
+    sleep 1
+    sudo $PLAS9_WWAN_UP
+  #else
+  #  echo "[mon-wwan] $WWAN is up."
+  fi
+done
