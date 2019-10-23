@@ -1,0 +1,9 @@
+[submodule "rootfs/home/antony/projs/Asus-Tinker-Board"]
+	path = rootfs/home/antony/projs/Asus-Tinker-Board
+	url = https://github.com/sabrigultekin/Asus-Tinker-Board
+[submodule "rootfs/home/antony/projs/gpio_lib_c"]
+	path = rootfs/home/antony/projs/gpio_lib_c
+	url = http://github.com/TinkerBoard/gpio_lib_c
+[submodule "rootfs/home/antony/projs/gpio_lib_python"]
+	path = rootfs/home/antony/projs/gpio_lib_python
+	url = https://github.com/TinkerBoard/gpio_lib_python

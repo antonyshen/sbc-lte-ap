@@ -6,7 +6,7 @@ echo "written by Antony Shen <antony.shen@gemalto.com>"
 BASE_GPIO_PATH=/sys/class/gpio
 
 # Assign names to GPIO pin numbers for ON pin
-IGT=25
+IGT=171
 
 # Assign names to states
 ON="1"

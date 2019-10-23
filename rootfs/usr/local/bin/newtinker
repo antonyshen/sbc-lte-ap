@@ -1,0 +1,10 @@
+#!/bin/sh
+ckupd
+sudo apt install -y dhcpcd5 mc vim-nox cscope ctags ack-grep silversearcher-ag global git-core byobu picocom aptitude htop pv mtr-tiny
+sudo apt-get clean; sudo apt-get autoremove -y
+sudo systemctl enable shutdown_btn.service
+#sudo systemctl enable monitor_temp.service
+#sudo systemctl enable zram.service
+sudo cp /etc/network/interfaces /etc/network/interfaces.orig
+sudo cp /etc/crontab /etc/crontab.orig
+sudo sed -i "$ a 47 0    * * *   root    /usr/local/bin/pi_shutdown" /etc/crontab

@@ -1,0 +1,2 @@
+[keyfile]
+unmanaged-devices=interface-name:wlan0;interface-name:wwan0;interface-name:usb0;interface-name:eth0

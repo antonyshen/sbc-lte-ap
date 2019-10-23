@@ -12,7 +12,7 @@ if [ -e $TTY_COM ]; then
   echo -n "Power-off PLAS9..."
   echo -e "AT^SMSO\n" > /dev/ttyACM1
   sleep 1
-  sudo uhubctl -a off -p 2 2>&1 >/dev/null
+#  sudo uhubctl -a off -p 2 2>&1 >/dev/null
   sleep 1
   echo "done!"
 else

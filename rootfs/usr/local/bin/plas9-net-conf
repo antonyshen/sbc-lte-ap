@@ -6,11 +6,11 @@ echo
 FILE=/etc/network/interfaces
 CAT=/bin/cat
 
-query=$(ip addr | grep "2:")
+query=$(ip addr | grep "4:")
 squery=($query)
 LAN=$(echo ${squery[1]} | sed s/://g)
 
-query=$(ip addr | grep "3:")
+query=$(ip addr | grep "5:")
 squery=($query)
 WLAN=$(echo ${squery[1]} | sed s/://g)
 
