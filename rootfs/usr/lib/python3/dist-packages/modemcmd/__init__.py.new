@@ -27,12 +27,11 @@ def modemcmd(port, cmd, timeout=0.3):
     except SerialTimeoutException:
         raise ModemcmdTimeoutException('Write timeout')
 
-    lines = serial.readlines()
-    if lines == '':  # timeout
-        raise ModemcmdTimeoutException('Read timeout')
+    lines = b''
+    while True:
+        line = serial.readline()
+        lines += line
+        if line == b'':  #timeout
+            break
 
-    slines = []
-    for line in lines:
-        slines.append(line.decode('utf-8'))
-
-    return "".join(slines)
+    return lines.decode('utf-8')
