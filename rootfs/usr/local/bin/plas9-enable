@@ -4,3 +4,5 @@ sudo systemctl stop els81-wwan-manager
 sudo systemctl enable plas9-wwan-manager
 sudo systemctl start plas9-wwan-manager
 sudo systemctl status plas9-wwan-manager
+sudo cp /etc/udev/rules.d/99-cinterion-modules.rules.plas9 /etc/udev/rules.d/99-cinterion-modules.rules
+sudo udevadm control -R

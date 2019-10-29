@@ -5,16 +5,16 @@ echo
 
 sudo apt-get update
 sudo apt-get dist-upgrade -y
-sudo apt-get install -y cpufrequtils python-dev python3-dev python3-rpi.gpio python-rpi.gpio python-gpiozero pythoni3-gpiozero bridge-utils hostapd dnsmasq libmbim-utils modem-cmd
+sudo apt-get install -y cpufrequtils python-dev python3-dev python3-rpi.gpio python-rpi.gpio python-gpiozero pythoni3-gpiozero python3-pip python3-setuptools python3-wheel bridge-utils hostapd dnsmasq libmbim-utils
 sudo apt-get clean -y
 sudo apt-get remove -y
 
 CAT=/bin/cat
 
-WDM_DEV_COUNT=$(ls /dev/cdc-wdm* 2>/dev/null | grep 'cdc-wdm' | wc -l)
+#WDM_DEV_COUNT=$(ls /dev/cdc-wdm* 2>/dev/null | grep 'cdc-wdm' | wc -l)
 
-. ensure-els81-on
-. find-wdm
+#. ensure-els81-on
+#. find-wdm
 
 #echo "WDM_NODE=$WDM_NODE"
 #echo "WWAN=$WWAN"
@@ -28,15 +28,9 @@ if [ -e /etc/network/interfaces ]; then
 fi
 sudo cp /etc/network/interfaces.new /etc/network/interfaces
 
-#sudo sh -c "echo 1 > /proc/sys/net/ipv4/ip_forward"
-#sudo iptables -t nat -A POSTROUTING -o $WWAN -j MASQUERADE  
-#sudo iptables -A FORWARD -i $WWAN -o br0 -m state --state RELATED,ESTABLISHED -j ACCEPT  
-#sudo iptables -A FORWARD -i br0 -o $WWAN -j ACCEPT
-#sudo sh -c "iptables-save > /etc/iptables.ipv4.br0.$WWAN.nat"
-
 sudo systemctl unmask hostapd
 sudo systemctl enable hostapd
-sudo systemctl enable els81-wwan-manager.service
+#sudo systemctl enable els81-wwan-manager.service
 sudo systemctl enable dnsmasq.service 
 
 if [ -e /etc/default/hostapd ]; then
@@ -54,10 +48,10 @@ if [ -e /etc/default/cpufrequtils ]; then
 fi
 sudo cp /etc/default/cpufrequtils.new /etc/default/cpufrequtils
 
-if [ -e /usr/lib/python3/dist-packages/modemcmd/__init__.py ]; then
-  sudo cp /usr/lib/python3/dist-packages/modemcmd/__init__.py /usr/lib/python3/dist-packages/modemcmd/__init__.py.orig
-fi
-sudo cp /usr/lib/python3/dist-packages/modemcmd/__init__.py.new /usr/lib/python3/dist-packages/modemcmd/__init__.py
+#if [ -e /usr/lib/python3/dist-packages/modemcmd/__init__.py ]; then
+#  sudo cp /usr/lib/python3/dist-packages/modemcmd/__init__.py /usr/lib/python3/dist-packages/modemcmd/__init__.py.orig
+#fi
+#sudo cp /usr/lib/python3/dist-packages/modemcmd/__init__.py.new /usr/lib/python3/dist-packages/modemcmd/__init__.py
 
 if [ -e /etc/dhcpcd.conf ]; then
   sudo cp /etc/dhcpcd.conf /etc/dhcpcd.conf.orig
@@ -83,3 +77,5 @@ domain-needed        # Don't forward short names
 bogus-priv           # Never forward addresses in the non-routed address spaces.
 dhcp-range=192.168.62.50,192.168.62.150,12h # Assign IP addresses between 172.24.1.50 and 172.24.1.150 with a 12 hour lease time
 EOM
+
+sudo /usr/local/bin/els81-enable

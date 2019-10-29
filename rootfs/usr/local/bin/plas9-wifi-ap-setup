@@ -5,53 +5,47 @@ echo
 
 sudo apt-get update
 sudo apt-get dist-upgrade -y
-sudo apt-get install -y cpufrequtils python-dev python3-dev python3-rpi.gpio python-rpi.gpio python-gpiozero pythoni3-gpiozero bridge-utils hostapd dnsmasq libmbim-utils modem-cmd
+sudo apt-get install -y cpufrequtils python-dev python3-dev python3-rpi.gpio python-rpi.gpio python-gpiozero pythoni3-gpiozero python3-pip python3-setuptools python3-wheel bridge-utils hostapd dnsmasq libmbim-utils
 sudo apt-get clean -y
 sudo apt-get remove -y
 
 CAT=/bin/cat
 
 #sudo plas9-net-conf
-WDM_DEV_COUNT=$(ls /dev/ttyACM* 2>/dev/null  | wc -l)
-if [ $WDM_DEV_COUNT -eq 0 ]; then
-  echo -n "Turn-on PLAS9..."
-  sudo plas9-on 2>&1 >/dev/null
-  while [ $WDM_DEV_COUNT -eq 0 ]; do
-    sleep 3
-    WDM_DEV_COUNT=$(ls /dev/ttyACM* 2>/dev/null  | wc -l)
-  done
- echo " done!"
-fi
+#WDM_DEV_COUNT=$(ls /dev/ttyACM* 2>/dev/null  | wc -l)
+#if [ $WDM_DEV_COUNT -eq 0 ]; then
+#  echo -n "Turn-on PLAS9..."
+#  sudo plas9-on 2>&1 >/dev/null
+#  while [ $WDM_DEV_COUNT -eq 0 ]; do
+#    sleep 3
+#    WDM_DEV_COUNT=$(ls /dev/ttyACM* 2>/dev/null  | wc -l)
+#  done
+# echo " done!"
+#fi
 
-query=$(dmesg | grep "register 'cdc_ether'" | tail -n 3)
-squery=($query) #split into array elements 
-if [ -n ${squery[4]} ]; then
-	squery[4]=$(echo ${squery[4]} | sed s/://g)
-	WWAN="${squery[4]}"
-fi
+#query=$(dmesg | grep "register 'cdc_ether'" | tail -n 3)
+#squery=($query) #split into array elements 
+#if [ -n ${squery[4]} ]; then
+#	squery[4]=$(echo ${squery[4]} | sed s/://g)
+#	WWAN="${squery[4]}"
+#fi
 
-query=$(ip addr | grep "2:")
-squery=($query)
-LAN=$(echo ${squery[1]} | sed s/://g)
+#query=$(ip addr | grep "2:")
+#squery=($query)
+#LAN=$(echo ${squery[1]} | sed s/://g)
 
-query=$(ip addr | grep "3:")
-squery=($query)
-WLAN=$(echo ${squery[1]} | sed s/://g)
+#query=$(ip addr | grep "3:")
+#squery=($query)
+#WLAN=$(echo ${squery[1]} | sed s/://g)
 
-echo "PLAS9 WWAN=$WWAN"
-echo "LAN=$LAN"
-echo "WLAN=$WLAN"
+#echo "PLAS9 WWAN=$WWAN"
+#echo "LAN=$LAN"
+#echo "WLAN=$WLAN"
 
 if [ -e /etc/network/interfaces ]; then
   sudo cp /etc/network/interfaces /etc/network/interfaces.orig
 fi
 sudo cp /etc/network/interfaces.new /etc/network/interfaces
-
-#sudo sh -c "echo 1 > /proc/sys/net/ipv4/ip_forward"
-#sudo iptables -t nat -A POSTROUTING -o $WWAN -j MASQUERADE  
-#sudo iptables -A FORWARD -i $WWAN -o br0 -m state --state RELATED,ESTABLISHED -j ACCEPT  
-#sudo iptables -A FORWARD -i br0 -o $WWAN -j ACCEPT
-#sudo sh -c "iptables-save > /etc/iptables.ipv4.br0.$WWAN.nat"
 
 sudo systemctl unmask hostapd
 sudo systemctl enable hostapd
@@ -73,21 +67,15 @@ if [ -e /etc/default/cpufrequtils ]; then
 fi
 sudo cp /etc/default/cpufrequtils.new /etc/default/cpufrequtils
 
-if [ -e /usr/lib/python3/dist-packages/modemcmd/__init__.py ]; then
-  sudo cp /usr/lib/python3/dist-packages/modemcmd/__init__.py /usr/lib/python3/dist-packages/modemcmd/__init__.py.orig
-fi
-sudo cp /usr/lib/python3/dist-packages/modemcmd/__init__.py.new /usr/lib/python3/dist-packages/modemcmd/__init__.py
+#if [ -e /usr/lib/python3/dist-packages/modemcmd/__init__.py ]; then
+#  sudo cp /usr/lib/python3/dist-packages/modemcmd/__init__.py /usr/lib/python3/dist-packages/modemcmd/__init__.py.orig
+#fi
+#sudo cp /usr/lib/python3/dist-packages/modemcmd/__init__.py.new /usr/lib/python3/dist-packages/modemcmd/__init__.py
 
 if [ -e /etc/dhcpcd.conf ]; then
   sudo cp /etc/dhcpcd.conf /etc/dhcpcd.conf.orig
 fi
 sudo cp /etc/dhcpcd.conf.new /etc/dhcpcd.conf
-#sudo cp /etc/dhcpcd.conf /etc/dhcpcd.conf.orig
-#sudo echo "denyinterfaces $WLAN" >> /etc/dhcpcd.conf
-#sudo echo "denyinterfaces $LAN" >> /etc/dhcpcd.conf
-
-#sudo cp /etc/sysctl.conf /etc/sysctl.conf.orig
-#sudo echo "net.ipv4.ip_forward=1" >> /etc/sysctl.conf
 
 if [ -e /etc/dnsmasq.conf ]; then
   sudo cp /etc/dnsmasq.conf /etc/dnsmasq.conf.orig
@@ -102,3 +90,5 @@ domain-needed        # Don't forward short names
 bogus-priv           # Never forward addresses in the non-routed address spaces.
 dhcp-range=192.168.62.50,192.168.62.150,12h # Assign IP addresses between 172.24.1.50 and 172.24.1.150 with a 12 hour lease time
 EOM
+
+sudo /usr/local/bin/plas9-enable

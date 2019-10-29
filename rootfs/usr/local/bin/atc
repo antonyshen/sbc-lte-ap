@@ -1,5 +1,4 @@
 #!/bin/sh
 TTY_CMD="/dev/ttyACM1"
 
-modem-cmd $TTY_CMD $1
-
+atc.py $TTY_CMD $1 30

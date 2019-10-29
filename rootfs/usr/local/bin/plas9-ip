@@ -1,5 +1,8 @@
-#!/usr/bin/env bash
-echo "PLAS9 signal strength query utility"
+#!/bin/sh
+echo "PLAS9 IP configuration query utility"
 echo "written by Antony Shen <antony.shen@gemalto.com>"
 
-atc AT+CGPADDR
+atc at+cgpaddr
+atc AT+CGCONTRDP
+ip a s dev wwan0
+ip r
