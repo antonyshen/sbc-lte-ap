@@ -1,7 +1,9 @@
 #!/bin/sh
-echo "ELS81 IP configuration query utility"
+echo "Modem IP Query Utility"
 echo "written by Antony Shen <antony.shen@gemalto.com>"
 
 #sudo mbimcli -d /dev/cdc-wdm0 -p --query-ip-configuration
 atc at+cgpaddr
 atc AT+CGCONTRDP
+ip a s dev wwan0
+ip r
