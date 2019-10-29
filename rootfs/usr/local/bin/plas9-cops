@@ -2,4 +2,4 @@
 echo "PLAS9 signal strength query utility"
 echo "written by Antony Shen <antony.shen@gemalto.com>"
 
-atc AT+COPS?
+atc.py /dev/ttyACM1 AT+COPS?

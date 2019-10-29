@@ -7,3 +7,6 @@
 [submodule "rootfs/home/antony/projs/gpio_lib_python"]
 	path = rootfs/home/antony/projs/gpio_lib_python
 	url = https://github.com/TinkerBoard/gpio_lib_python
+[submodule "rootfs/home/antony/projs/modem-cmd"]
+	path = rootfs/home/antony/projs/modem-cmd
+	url = https://github.com/antonyshen/modem-cmd.git

@@ -10,7 +10,7 @@ fi
 TTY_COM="/dev/ttyACM1"
 if [ -e $TTY_COM ]; then
   echo -n "Reset PLAS9..."
-  atc AT+CFUN=1,1
+  atc.py /dev/ttyACM1 AT+CFUN=1,1
   sleep 1
   echo "done!"
 else
