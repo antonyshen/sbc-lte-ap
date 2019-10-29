@@ -1,5 +1,5 @@
-# udev rule for USB wake-up of selected devices
+# udev rule for USB insert/remove of selected devices
 #
 ACTION=="add", SUBSYSTEM=="usb", ATTRS{idVendor}=="1e2d" RUN+="/usr/bin/sudo /bin/systemctl start plas9-wwan-manager"
 ACTION=="remove", SUBSYSTEM=="usb", ATTRS{idVendor}=="1e2d" RUN+="/usr/bin/sudo /bin/systemctl stop plas9-wwan-manager"
-
+ACTION=="remove", SUBSYSTEM=="usb", ATTRS{idVendor}=="1e2d" RUN+="/usr/bin/sudo /usr/local/bin/plas9-on"
