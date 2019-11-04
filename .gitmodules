@@ -1,3 +1,0 @@
-[submodule "rootfs/home/antony/projs/modem-cmd"]
-	path = rootfs/home/antony/projs/modem-cmd
-	url = https://github.com/antonyshen/modem-cmd.git
