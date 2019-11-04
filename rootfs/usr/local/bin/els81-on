@@ -53,24 +53,27 @@ shutdown()
 
 trap shutdown SIGINT
 
-if [[ $EUID -ne 0 ]]; then
+if [ $EUID -ne 0 ]; then
   echo "You must be a root user" 2>&1
   exit 1
 fi
 
-echo -n "Turn-on ELS81..."
+RUNLEVEL=$(systemctl get-default)
+if [ $RUNLEVEL == "graphical.target" ]; then
+  echo -n "Turn-on ELS81..."
 
-# Export pins so that we can use them
-exportPin $IGT
+  # Export pins so that we can use them
+  exportPin $IGT
 
-# Set pins as outputs
-setOutput $IGT
+  # Set pins as outputs
+  setOutput $IGT
 
-# Toggle ON pin
-setGPIOState $IGT $ON
-sleep 1
-setGPIOState $IGT $OFF
+  # Toggle ON pin
+  setGPIOState $IGT $ON
+  sleep 1
+  setGPIOState $IGT $OFF
 
-echo "done!"
+  echo "done!"
 
-cleanUp
+  cleanUp
+fi
