@@ -13,17 +13,19 @@ if [ -e $PLAS9_COM ]; then
   exit 2
 fi
 
-echo -n "Turn-on PLAS9..."
-sudo uhubctl -a on -p 2 2>&1 >/dev/null
-sleep 1
+RUNLEVEL=$(systemctl get-default)
+if [ $RUNLEVEL == "graphical.target" ]; then
+  echo -n "Turn-on PLAS9..."
+  sudo uhubctl -a on -p 2 2>&1 >/dev/null
+  sleep 1
 
-WDM_DEV_COUNT=$(ls /dev/ttyACM* 2>/dev/null  | wc -l)
-while [ $WDM_DEV_COUNT -eq 0 ]; do
-	sleep 1
-	WDM_DEV_COUNT=$(ls /dev/ttyACM* 2>/dev/null  | wc -l)
-done
+  WDM_DEV_COUNT=$(ls /dev/ttyACM* 2>/dev/null  | wc -l)
+  while [ $WDM_DEV_COUNT -eq 0 ]; do
+    sleep 1
+    WDM_DEV_COUNT=$(ls /dev/ttyACM* 2>/dev/null  | wc -l)
+  done
 
-sleep 1
+  sleep 1
 
-echo "done!"
-
+  echo "done!"
+fi
