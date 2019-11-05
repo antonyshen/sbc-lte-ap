@@ -31,6 +31,7 @@ sudo cp /etc/network/interfaces.new /etc/network/interfaces
 sudo systemctl unmask hostapd
 sudo systemctl enable hostapd
 #sudo systemctl enable els81-wwan-manager.service
+sudo systemctl enable els81-boot-on.service
 sudo systemctl enable dnsmasq.service 
 
 if [ -e /etc/default/hostapd ]; then

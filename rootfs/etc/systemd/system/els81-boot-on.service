@@ -1,0 +1,8 @@
+[Unit]
+Description=ELS81 Init Service
+
+[Service]
+ExecStart=/usr/bin/env python3 /usr/local/bin/els81-boot-on.py
+
+[Install]
+WantedBy=basic.target
