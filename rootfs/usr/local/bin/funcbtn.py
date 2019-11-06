@@ -36,9 +36,9 @@ def btnfunc(channel):
 
     # if press over 3s, prepare to reset (3s) or shutdown device(5s)
     time.sleep(2)
-    subprocess.run(['els81-off'], shell=True)
     if GPIO.input(FUNC_PIN) == GPIO.HIGH:
         print("Short-press on reset button, reboot system now...")
+        subprocess.run(['els81-off'], shell=True)
         subprocess.run(['sudo', 'sync'])
         subprocess.run(['sudo', 'sync'])
         subprocess.run(['sudo', 'sync'])
@@ -47,7 +47,7 @@ def btnfunc(channel):
 
     # if press over 5s, prepare to shutdown device
     time.sleep(3)         # need to filter out the false positive of some power fluctuation
-    if GPIO.input(FUNC_PIN) == GPIO.HIGH:
+    if GPIO.input(FUNC_PIN) != GPIO.HIGH:
         print("Shutdown system now...")
         subprocess.run(['sudo', 'sync'])
         subprocess.run(['sudo', 'sync'])
