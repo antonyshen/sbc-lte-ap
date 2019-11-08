@@ -5,7 +5,7 @@ echo
 
 sudo apt-get update
 sudo apt-get dist-upgrade -y
-sudo apt-get install -y cpufrequtils python-dev python3-dev python3-rpi.gpio python-rpi.gpio python-gpiozero python3-gpiozero python-serial python3-serial python3-pip python3-setuptools python3-wheel bridge-utils hostapd dnsmasq libmbim-utils
+sudo apt-get install -y cpufrequtils python3-rpi.gpio python3-gpiozero python3-serial python3-pip python3-setuptools python3-wheel bridge-utils hostapd dnsmasq libmbim-utils
 sudo apt-get clean -y
 sudo apt-get remove -y
 
@@ -49,8 +49,10 @@ sudo cp /etc/network/interfaces.new /etc/network/interfaces
 
 sudo systemctl unmask hostapd
 sudo systemctl enable hostapd
-#sudo systemctl enable plas9-wwan-manager.service
+sudo systemctl enable plas9-wwan-manager.service
 sudo systemctl enable dnsmasq.service 
+sudo systemctl stop bluetooth.service
+sudo systemctl disable bluetooth.service
 
 if [ -e /etc/default/hostapd ]; then
   sudo cp /etc/default/hostapd /etc/default/hostapd.orig

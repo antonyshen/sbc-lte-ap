@@ -33,6 +33,8 @@ sudo systemctl enable hostapd
 #sudo systemctl enable els81-wwan-manager.service
 sudo systemctl enable els81-boot-on.service
 sudo systemctl enable dnsmasq.service 
+sudo systemctl stop bluetooth.service
+sudo systemctl disable bluetooth.service
 
 if [ -e /etc/default/hostapd ]; then
   sudo cp /etc/default/hostapd /etc/default/hostapd.orig
