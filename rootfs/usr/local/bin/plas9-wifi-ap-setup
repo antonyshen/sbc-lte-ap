@@ -53,6 +53,8 @@ sudo systemctl enable hostapd
 sudo systemctl enable dnsmasq.service 
 sudo systemctl stop bluetooth.service
 sudo systemctl disable bluetooth.service
+sudo systemctl disable hciuart
+echo "dtoverlay=pi3-disable-bt" | sudo tee -a /boot/config.txt
 
 if [ -e /etc/default/hostapd ]; then
   sudo cp /etc/default/hostapd /etc/default/hostapd.orig
