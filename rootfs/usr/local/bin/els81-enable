@@ -1,8 +1,11 @@
 #!/bin/sh
 sudo systemctl disable plas9-wwan-manager
 sudo systemctl stop plas9-wwan-manager
-sudo systemctl enable els81-wwan-manager
-sudo systemctl start els81-wwan-manager
-sudo systemctl status els81-wwan-manager
+sudo cp /etc/network/interfaces.rpi.els81 /etc/network/interfaces
+#sudo systemctl enable els81-wwan-manager
+#sudo systemctl start els81-wwan-manager
+#sudo systemctl status els81-wwan-manager
 sudo cp /etc/udev/rules.d/99-cinterion-modules.rules.els81 /etc/udev/rules.d/99-cinterion-modules.rules
 sudo udevadm control -R
+sudo systemctl enable els81-boot-on.service
+sudo systemctl start els81-boot-on.service
