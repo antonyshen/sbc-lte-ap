@@ -84,15 +84,16 @@ sudo cp /etc/dhcpcd.conf.new /etc/dhcpcd.conf
 if [ -e /etc/dnsmasq.conf ]; then
   sudo cp /etc/dnsmasq.conf /etc/dnsmasq.conf.orig
 fi
-FILE=/etc/dnsmasq.conf
-$CAT <<EOM >>$FILE
-interface=br0      # Use interface wlan0
-listen-address=192.168.62.1 # Explicitly specify the address to listen on
-bind-interfaces      # Bind to the interface to make sure we aren't sending things elsewhere
-server=8.8.8.8       # Forward DNS requests to Google DNS
-domain-needed        # Don't forward short names
-bogus-priv           # Never forward addresses in the non-routed address spaces.
-dhcp-range=192.168.62.50,192.168.62.150,12h # Assign IP addresses between 172.24.1.50 and 172.24.1.150 with a 12 hour lease time
-EOM
+sudo cp /etc/dnsmasq.conf.new /etc/dnsmasq.conf
+#FILE=/etc/dnsmasq.conf
+#$CAT <<EOM >>$FILE
+#interface=br0      # Use interface wlan0
+#listen-address=192.168.62.1 # Explicitly specify the address to listen on
+#bind-interfaces      # Bind to the interface to make sure we aren't sending things elsewhere
+#server=8.8.8.8       # Forward DNS requests to Google DNS
+#domain-needed        # Don't forward short names
+#bogus-priv           # Never forward addresses in the non-routed address spaces.
+#dhcp-range=192.168.62.50,192.168.62.150,12h # Assign IP addresses between 172.24.1.50 and 172.24.1.150 with a 12 hour lease time
+#EOM
 
 sudo /usr/local/bin/plas9-enable

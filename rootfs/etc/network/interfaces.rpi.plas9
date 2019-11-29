@@ -1,0 +1,47 @@
+# interfaces(5) file used by ifup(8) and ifdown(8)
+
+# Please note that this file is written to be used with dhcpcd
+# For static IP, consult /etc/dhcpcd.conf and 'man dhcpcd.conf'
+
+# Include files from /etc/network/interfaces.d:
+source-directory /etc/network/interfaces.d
+
+auto lo
+iface lo inet loopback
+
+# automatically connect the wired interface
+auto eth0
+allow-hotplug eth0
+iface eth0 inet manual
+#iface eth0 inet dhcp
+
+# automatically connect the wireless interface, but disable it for now
+auto wlan0
+allow-hotplug wlan0
+iface wlan0 inet manual
+wireless-power off
+
+# create a bridge with both wired and wireless interfaces
+auto br0
+iface br0 inet static
+        address 192.168.92.1
+        netmask 255.255.255.0
+        bridge_ports wlan0 eth0
+        bridge_fd 0
+        bridge_stp on
+
+auto usb0
+allow-hotplug usb0
+iface usb0 inet dhcp
+  up /sbin/iptables-restore < /etc/iptables.ipv4.br0.usb0.nat
+  down /usr/local/bin/plas9-wwan-down
+#  post-down /usr/sbin/service hostapd stop
+
+auto wwan0
+allow-hotplug wwan0
+iface wwan0 inet dhcp
+#iface wwan0 inet manual
+  up /sbin/iptables-restore < /etc/iptables.ipv4.br0.wwan0.nat
+#  down /usr/local/bin/els81-wwan-down
+  down /usr/local/bin/plas9-wwan-down
+#  post-down /usr/sbin/service hostapd stop
