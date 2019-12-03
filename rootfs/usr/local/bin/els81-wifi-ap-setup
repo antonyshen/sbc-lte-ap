@@ -36,8 +36,11 @@ sudo systemctl enable dnsmasq.service
 sudo systemctl stop bluetooth.service
 sudo systemctl disable bluetooth.service
 sudo systemctl disable hciuart
-sudo systemctl disable wpa_supplicant.service
 echo "dtoverlay=pi3-disable-bt" | sudo tee -a /boot/config.txt
+
+sudo systemctl disable wpa_supplicant.service
+sudo systemctl disable alsa-restore.service
+sudo systemctl disable alsa-state.service
 
 if [ -e /etc/default/hostapd ]; then
   sudo cp /etc/default/hostapd /etc/default/hostapd.orig
