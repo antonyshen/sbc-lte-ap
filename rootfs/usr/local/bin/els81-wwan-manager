@@ -3,8 +3,12 @@ echo "ELS81 WWAN Manager"
 echo "created by Antony Shen <antony.shen@gemalto.com>"
 echo
 
+rx_packets_on() {
+        echo `cat /sys/class/net/$1/statistics/rx_packets`
+}
+
 PING_COUNT=1
-SLEEP_INTERVAL=120
+SLEEP_INTERVAL=600
 
 PING="/bin/ping"
 ELS81_OFF="/usr/local/bin/els81-off"
@@ -55,20 +59,31 @@ MAXCOUNT=10
 # Monitor the status of WWAN pipe, ensure it's free from congestion
 while true; do
   count=1
+  R1=$(rx_packets_on "$WWAN")
+  #echo "R1=$R1"
   sleep $SLEEP_INTERVAL
 
   # Generate 10 ($MAXCOUNT) random pings.
   while [ $count -le $MAXCOUNT ]; do
-    number=$(( RANDOM % $MAXCOUNT ))
-    #$PING -I $WWAN -W 1 -c $PING_COUNT ${PING_TARGETS[number]}
-    $PING -I $WWAN -W 1 -c $PING_COUNT ${PING_TARGETS[number]} 2>&1 > /dev/null
-    RC=$?
-    if [ $RC -eq 0 ]; then
-#      echo "[mon-wwan] $WWAN is up."
+    RC=0
+    R2=$(rx_packets_on "$WWAN")
+    #echo "R2=$R2"
+    RXPPS=`expr $R2 - $R1`
+    #echo "RXPPS=$RXPPS"
+    if [ $RXPPS -lt $(($SLEEP_INTERVAL/8)) ]; then
+      number=$(( RANDOM % $MAXCOUNT ))
+      #$PING -I $WWAN -W 1 -c $PING_COUNT ${PING_TARGETS[number]}
+      $PING -I $WWAN -W 1 -c $PING_COUNT ${PING_TARGETS[number]} 2>&1 > /dev/null
+      RC=$?
+      if [ $RC -eq 0 ]; then
+  #      echo "[mon-wwan] $WWAN is up."
+        break
+      fi
+      ((count++))
+  #    let "count += 1"  # Increment count.
+    else
       break
     fi
-    ((count++))
-#    let "count += 1"  # Increment count.
   done
 
   if [ $RC -ge 1 ]
