@@ -54,6 +54,7 @@ sudo systemctl enable dnsmasq.service
 sudo systemctl stop bluetooth.service
 sudo systemctl disable bluetooth.service
 sudo systemctl disable hciuart
+sudo systemctl disable wpa_supplicant.service
 echo "dtoverlay=pi3-disable-bt" | sudo tee -a /boot/config.txt
 
 if [ -e /etc/default/hostapd ]; then
