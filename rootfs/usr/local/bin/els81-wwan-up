@@ -56,7 +56,7 @@ echo -n "Requesting IP service... "
 sudo mbim-network $WDM_NODE start 2>&1 >/dev/null
 #sudo mbimcli -d $WDM_NODE -p --query-ip-configuration
 
-sudo mbimcli -d /dev/cdc-wdm0 -p --query-ip-configuration > /tmp/mbim-info
+sudo mbimcli -d $WDM_NODE -p --query-ip-configuration > /tmp/mbim-info
 query=$(grep 'IP \[0\]' /tmp/mbim-info) # output will like this: "IP [0]: '10.113.178.235/24'"
 squery=($query) #split into array elements 
 IPV4=$(echo ${squery[2]} | sed s/\'//g) 
