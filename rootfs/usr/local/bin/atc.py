@@ -7,10 +7,10 @@ from serial import Serial
 def atc(port, baudrate, rtscts, cmd, timeout, *waitingrsp):
     with Serial(port=port, baudrate=baudrate, rtscts=rtscts, timeout=float(timeout)) as ser:
         if cmd != '':
-            cmd = cmd +'\r'
+            cmd = cmd + '\r'
             cmd = cmd.encode('utf-8')
             ser.write(cmd)
-        else :
+        else:
             cmd = cmd.encode('utf-8')
 
         expectrsps = []
@@ -39,13 +39,14 @@ def atc(port, baudrate, rtscts, cmd, timeout, *waitingrsp):
 
     return lines.decode('utf-8')
 
+
 def main(argv):
     if len(argv) < 2:
         print('AT Command utility, by Antony Shen <antony.shen@gmail.com>')
         print('Usage: %s MODEM_DEVICE [COMMAND] [TIMEOUT]' % argv[0])
         exit(1)
 
-    expectrsps=('OK','ERROR','SYS', 'READY')
+    expectrsps = ('OK', 'ERROR', 'SYS', 'READY')
     if len(argv) > 2:
         cmd = argv[2]
     else:
